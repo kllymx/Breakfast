@@ -65,6 +65,22 @@ export GRANOLA_OUTPUT_DIR="$HOME/Notes/Meetings"
 
 Default: `~/Documents/Granola Notes`
 
+## Managing the App
+
+The install script configures launchd to auto-start the app at login. Launchd manages the process—don't manually start the app when launchd is active, or you'll get duplicate icons.
+
+```bash
+# Stop the app
+launchctl unload ~/Library/LaunchAgents/com.arcane.granola-sync.plist
+
+# Start the app
+launchctl load ~/Library/LaunchAgents/com.arcane.granola-sync.plist
+
+# Restart (after config changes)
+launchctl unload ~/Library/LaunchAgents/com.arcane.granola-sync.plist
+launchctl load ~/Library/LaunchAgents/com.arcane.granola-sync.plist
+```
+
 ## Uninstall
 
 ```bash
@@ -148,23 +164,13 @@ Use Claude Code to automatically organize notes into your Obsidian vault with pr
    }
    ```
 
-3. Customize `claude_instructions` for your vault structure. Example:
-   ```
-   You are organizing meeting notes for my Obsidian vault.
+3. Customize `claude_instructions` for your vault structure. The example config includes a full template with:
+   - Client identification from email domains
+   - Client file creation/linking
+   - Meeting note template with frontmatter, wiki links, action items
+   - **Full transcript preservation**
 
-   VAULT STRUCTURE:
-   - Clients/ - Client profile pages
-   - Meetings/ - Meeting notes
-   - Projects/ - Project documentation
-
-   YOUR TASKS:
-   1. Identify the client from attendee email domains
-   2. Check if client file exists in Clients/
-   3. Create new client file if needed
-   4. Process the meeting note with proper frontmatter and wiki links
-   5. Save to Meetings/YYYY-MM-DD - Title.md
-   6. Update client file with backlink to meeting
-   ```
+   See `config.example.json` for the complete template you can customize.
 
 ### Menubar Options
 
