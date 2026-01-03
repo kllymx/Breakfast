@@ -196,7 +196,9 @@ node obsidian-import.js --live       # Interactive mode (shows Claude UI)
 
 ## How It Works
 
-Granola stores meeting data locally at `~/Library/Application Support/Granola/cache-v3.json`. This tool reads that cache and exports meetings as Markdown files — no API keys or authentication required.
+Granola stores meeting data locally at `~/Library/Application Support/Granola/cache-v3.json`. This tool reads that cache and exports meetings as Markdown files.
+
+**Transcripts**: Since Granola stores transcripts on their servers (not locally), we fetch them via Granola's API using your existing auth token from `~/Library/Application Support/Granola/supabase.json`. This is created automatically when you log into Granola — no additional setup required.
 
 ## License
 
