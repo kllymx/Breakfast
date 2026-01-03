@@ -7,8 +7,8 @@
     
     <key>ProgramArguments</key>
     <array>
-        <string>/Users/maxkelly/Developer/ArcaneAutomations/granola_sync/.venv/bin/python3</string>
-        <string>/Users/maxkelly/Developer/ArcaneAutomations/granola_sync/menubar.py</string>
+        <string>/Users/maxkelly/Developer/Breakfast/.venv/bin/python3</string>
+        <string>/Users/maxkelly/Developer/Breakfast/menubar.py</string>
     </array>
     
     <key>RunAtLoad</key>
