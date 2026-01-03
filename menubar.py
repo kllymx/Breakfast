@@ -32,7 +32,10 @@ class GranolaSyncApp(rumps.App):
     def __init__(self):
         super().__init__("Granola", icon=None, title="🥣")
         
+        self.stats_item = rumps.MenuItem("", callback=None)
+        self.last_sync_item = rumps.MenuItem("Last sync: Never", callback=None)
         self.recent_menu = rumps.MenuItem("Recent Notes")
+        
         self.menu = [
             rumps.MenuItem("Sync Now", callback=self.sync_now),
             rumps.MenuItem("Sync Last 7 Days", callback=self.sync_week),
@@ -40,12 +43,17 @@ class GranolaSyncApp(rumps.App):
             self.recent_menu,
             rumps.MenuItem("Open Notes Folder", callback=self.open_folder),
             None,
+            self.stats_item,
+            self.last_sync_item,
+            None,
             rumps.MenuItem("View Log", callback=self.view_log),
         ]
         self.syncing = False
         self.last_synced_file = None
+        self.last_sync_time = None
         self.observer = None
         
+        self.update_stats()
         self.populate_recent_menu()
         self.start_watcher()
     
@@ -56,6 +64,41 @@ class GranolaSyncApp(rumps.App):
             handler = CacheChangeHandler(self)
             self.observer.schedule(handler, cache_dir, recursive=False)
             self.observer.start()
+    
+    def get_meeting_count(self):
+        if not os.path.exists(OUTPUT_DIR):
+            return 0
+        return len(glob.glob(os.path.join(OUTPUT_DIR, '*.md')))
+    
+    def update_stats(self):
+        count = self.get_meeting_count()
+        self.stats_item.title = f"{count} meeting{'s' if count != 1 else ''} synced"
+    
+    def update_last_sync(self):
+        self.last_sync_time = datetime.now()
+        self.last_sync_item.title = f"Last sync: just now"
+    
+    def format_time_ago(self, dt):
+        if not dt:
+            return "Never"
+        delta = datetime.now() - dt
+        seconds = delta.total_seconds()
+        if seconds < 60:
+            return "just now"
+        elif seconds < 3600:
+            mins = int(seconds / 60)
+            return f"{mins}m ago"
+        elif seconds < 86400:
+            hours = int(seconds / 3600)
+            return f"{hours}h ago"
+        else:
+            days = int(seconds / 86400)
+            return f"{days}d ago"
+    
+    @rumps.timer(60)
+    def refresh_time_ago(self, _):
+        if self.last_sync_time:
+            self.last_sync_item.title = f"Last sync: {self.format_time_ago(self.last_sync_time)}"
     
     def get_recent_files(self):
         if not os.path.exists(OUTPUT_DIR):
@@ -127,6 +170,8 @@ class GranolaSyncApp(rumps.App):
                 summary = lines[-2] if len(lines) >= 2 else "Sync completed"
                 
                 self.update_recent_menu()
+                self.update_stats()
+                self.update_last_sync()
                 
                 newest = self.get_newest_note()
                 self.last_synced_file = newest

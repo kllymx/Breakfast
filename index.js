@@ -134,9 +134,38 @@ function formatTranscript(transcriptEntries) {
   }).join('\n\n');
 }
 
+function extractActionItems(notes, transcript) {
+  const actionItems = [];
+  const patterns = [
+    /(?:^|\n)\s*[-*]\s*\[[ ]\]\s*(.+)/gi,
+    /(?:^|\n)\s*(?:TODO|ACTION|FOLLOW[- ]?UP|NEXT STEP|ACTION ITEM)[:\s]+(.+)/gi,
+    /(?:^|\n)\s*[-*]\s*(?:TODO|ACTION|FOLLOW[- ]?UP|NEXT STEP)[:\s]+(.+)/gi,
+  ];
+  
+  const sources = [notes || '', transcript || ''];
+  
+  for (const text of sources) {
+    for (const pattern of patterns) {
+      let match;
+      pattern.lastIndex = 0;
+      while ((match = pattern.exec(text)) !== null) {
+        const item = match[1].trim();
+        if (item && item.length > 3 && !actionItems.includes(item)) {
+          actionItems.push(item);
+        }
+      }
+    }
+  }
+  
+  return actionItems;
+}
+
 function generateMarkdown(meeting, metadata, transcriptEntries) {
   const attendees = extractAttendees(meeting, metadata);
   const calEvent = meeting.google_calendar_event;
+  const notesText = meeting.notes_markdown || meeting.notes_plain || '';
+  const transcriptText = formatTranscript(transcriptEntries);
+  const actionItems = extractActionItems(notesText, transcriptText);
   
   const frontmatter = [
     '---',
@@ -179,7 +208,7 @@ function generateMarkdown(meeting, metadata, transcriptEntries) {
     meetingInfo += `**Meeting Link:** ${calEvent.conferenceData.entryPoints[0].uri}\n`;
   }
   
-  return [
+  const sections = [
     frontmatter.join('\n'),
     '',
     `# ${meeting.title || 'Untitled Meeting'}`,
@@ -196,21 +225,37 @@ function generateMarkdown(meeting, metadata, transcriptEntries) {
     '',
     '## Notes',
     '',
-    meeting.notes_markdown || meeting.notes_plain || '*No notes recorded*',
+    notesText || '*No notes recorded*',
     '',
     '---',
     '',
     '## Summary',
     '',
     meeting.summary || meeting.overview || '*No summary available*',
+  ];
+  
+  if (actionItems.length > 0) {
+    sections.push(
+      '',
+      '---',
+      '',
+      '## Action Items',
+      '',
+      actionItems.map(item => `- [ ] ${item}`).join('\n')
+    );
+  }
+  
+  sections.push(
     '',
     '---',
     '',
     '## Transcript',
     '',
-    formatTranscript(transcriptEntries),
-    '',
-  ].join('\n');
+    transcriptText,
+    ''
+  );
+  
+  return sections.join('\n');
 }
 
 function sanitizeFilename(title) {
