@@ -10,6 +10,7 @@ A macOS menubar app that syncs your [Granola](https://granola.ai) meeting notes 
 - **Clickable notifications** - click to open the synced note
 - **Action items extraction** - automatically finds TODOs, ACTION items, FOLLOW UPs
 - **Sync stats** - shows meeting count and last sync time in menu
+- **Obsidian integration** - AI-powered organization into your vault (optional)
 - Exports **notes, transcripts, and metadata** (attendees, timestamps, meeting links)
 - Markdown files with YAML frontmatter for easy searching/indexing
 - Auto-start at login via launchd
@@ -117,6 +118,75 @@ Discussion points from the meeting...
 - Node.js (for sync script)
 - Python 3 (for menubar app)
 - [Granola](https://granola.ai) desktop app
+
+## Obsidian Integration (Optional)
+
+Use Claude Code to automatically organize notes into your Obsidian vault with proper links, tags, and folder structure.
+
+### Requirements
+
+- [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code) installed and authenticated
+- An Obsidian vault
+
+### Setup
+
+1. Copy the example config:
+   ```bash
+   cp config.example.json config.json
+   ```
+
+2. Edit `config.json`:
+   ```json
+   {
+     "obsidian": {
+       "enabled": true,
+       "vault_path": "~/Documents/YourVault",
+       "meetings_folder": "Meetings",
+       "auto_import": false,
+       "claude_instructions": "Your instructions here..."
+     }
+   }
+   ```
+
+3. Customize `claude_instructions` for your vault structure. Example:
+   ```
+   You are organizing meeting notes for my Obsidian vault.
+
+   VAULT STRUCTURE:
+   - Clients/ - Client profile pages
+   - Meetings/ - Meeting notes
+   - Projects/ - Project documentation
+
+   YOUR TASKS:
+   1. Identify the client from attendee email domains
+   2. Check if client file exists in Clients/
+   3. Create new client file if needed
+   4. Process the meeting note with proper frontmatter and wiki links
+   5. Save to Meetings/YYYY-MM-DD - Title.md
+   6. Update client file with backlink to meeting
+   ```
+
+### Menubar Options
+
+| Menu Item | Description |
+|-----------|-------------|
+| Import to Obsidian | Import new notes in background (uses manifest to skip already-imported) |
+| Force Re-import All (Live) | Opens Terminal with Claude Code UI to process all notes interactively |
+| Open Obsidian Vault | Opens your vault folder |
+
+### How It Works
+
+- **Import to Obsidian**: Runs headlessly in background, processes one note at a time, tracks imported notes in `.breakfast-imported.json` manifest
+- **Force Re-import All (Live)**: Opens a single Claude Code session that scans all notes and processes them—you can watch Claude work in real-time
+
+### Command Line
+
+```bash
+node obsidian-import.js              # Import new notes (headless)
+node obsidian-import.js --force      # Re-import all notes
+node obsidian-import.js --dry-run    # Preview what would import
+node obsidian-import.js --live       # Interactive mode (shows Claude UI)
+```
 
 ## How It Works
 

@@ -2,3 +2,6 @@
 __pycache__/
 *.pyc
 .DS_Store
+config.json
+.import-prompt.txt
+.run-import.sh

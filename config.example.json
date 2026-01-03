@@ -1,0 +1,9 @@
+{
+  "obsidian": {
+    "enabled": false,
+    "vault_path": "~/Documents/YourVault",
+    "meetings_folder": "Meetings",
+    "auto_import": false,
+    "claude_instructions": "You are organizing meeting notes for my Obsidian vault.\n\nYOUR TASKS:\n\n1. IDENTIFY THE CLIENT/COMPANY from attendee emails and content\n\n2. CHECK IF CLIENT EXISTS in your Clients folder\n\n3. CREATE NEW CLIENT FILE if this is a new client:\n   - Create in Clients/ folder with company name\n   - Include overview, contacts, and meetings section\n\n4. PROCESS THE MEETING NOTE:\n   - Add YAML frontmatter with tags\n   - Clean formatting, add wiki links to client [[Clients/Name]]\n   - Ensure action items are checkboxes\n   - Save to Meetings/YYYY-MM-DD - Title.md\n\n5. UPDATE CLIENT FILE with backlink to this meeting\n\nCustomize these instructions for your vault structure and workflow."
+  }
+}
