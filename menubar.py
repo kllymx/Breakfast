@@ -61,7 +61,8 @@ class GranolaSyncApp(rumps.App):
         self.run_sync(['--days', '7', '--force'])
 
     def open_folder(self, _):
-        subprocess.run(['open', '/Users/maxkelly/Documents/Granola Notes'])
+        output_dir = os.environ.get('GRANOLA_OUTPUT_DIR', os.path.expanduser('~/Documents/Granola Notes'))
+        subprocess.run(['open', output_dir])
 
     def view_log(self, _):
         log_path = os.path.expanduser('~/Library/Logs/granola-sync.log')

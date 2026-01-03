@@ -11,7 +11,7 @@ const fs = require('fs');
 const path = require('path');
 
 const CONFIG = {
-  outputDir: '/Users/maxkelly/Documents/Granola Notes',
+  outputDir: process.env.GRANOLA_OUTPUT_DIR || path.join(process.env.HOME, 'Documents/Granola Notes'),
   cacheFile: path.join(process.env.HOME, 'Library/Application Support/Granola/cache-v3.json'),
   logFile: path.join(process.env.HOME, 'Library/Logs/granola-sync.log'),
 };

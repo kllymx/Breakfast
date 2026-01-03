@@ -1,4 +1,4 @@
-# Breakfast 🥣
+# Breakfast
 
 A macOS menubar app that syncs your [Granola](https://granola.ai) meeting notes to a local folder as Markdown files.
 
@@ -14,24 +14,21 @@ A macOS menubar app that syncs your [Granola](https://granola.ai) meeting notes 
 ```bash
 git clone https://github.com/kllymx/Breakfast.git
 cd Breakfast
-
-# Create virtual environment and install dependencies
-python3 -m venv .venv
-.venv/bin/pip install rumps pyobjc-framework-Cocoa
-
-# Make scripts executable
-chmod +x index.js menubar.py sync.sh
+chmod +x install.sh
+./install.sh
 ```
+
+This will:
+1. Create a Python virtual environment
+2. Install dependencies (rumps, pyobjc)
+3. Configure auto-start at login
+4. Launch the menubar app
 
 ## Usage
 
 ### Menubar App
 
-```bash
-.venv/bin/python3 menubar.py
-```
-
-Look for the 🥣 icon in your menubar:
+Look for the icon in your menubar:
 
 | Menu Item | Action |
 |-----------|--------|
@@ -43,41 +40,27 @@ Look for the 🥣 icon in your menubar:
 ### Command Line
 
 ```bash
-# Sync all meetings
-node index.js
-
-# Sync last 7 days
-node index.js --days 7
-
-# Force overwrite existing files
-node index.js --force
-
-# Verbose output
-node index.js --verbose
-```
-
-## Auto-Start at Login
-
-```bash
-cp com.arcane.granola-sync.plist ~/Library/LaunchAgents/
-launchctl load ~/Library/LaunchAgents/com.arcane.granola-sync.plist
-```
-
-To stop auto-start:
-```bash
-launchctl unload ~/Library/LaunchAgents/com.arcane.granola-sync.plist
+node index.js              # Sync all meetings
+node index.js --days 7     # Sync last 7 days
+node index.js --force      # Force overwrite existing files
+node index.js --verbose    # Verbose output
 ```
 
 ## Configuration
 
-Edit `index.js` to change:
+Set `GRANOLA_OUTPUT_DIR` environment variable to change where notes are saved:
 
-```javascript
-const CONFIG = {
-  outputDir: '/Users/maxkelly/Documents/Granola Notes',  // Where notes are saved
-  cacheFile: '~/Library/Application Support/Granola/cache-v3.json',
-  logFile: '~/Library/Logs/granola-sync.log',
-};
+```bash
+export GRANOLA_OUTPUT_DIR="$HOME/Notes/Meetings"
+```
+
+Default: `~/Documents/Granola Notes`
+
+## Uninstall
+
+```bash
+launchctl unload ~/Library/LaunchAgents/com.arcane.granola-sync.plist
+rm ~/Library/LaunchAgents/com.arcane.granola-sync.plist
 ```
 
 ## Output Format

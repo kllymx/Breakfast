@@ -7,8 +7,8 @@
     
     <key>ProgramArguments</key>
     <array>
-        <string>/Users/maxkelly/Developer/Breakfast/.venv/bin/python3</string>
-        <string>/Users/maxkelly/Developer/Breakfast/menubar.py</string>
+        <string>__INSTALL_DIR__/.venv/bin/python3</string>
+        <string>__INSTALL_DIR__/menubar.py</string>
     </array>
     
     <key>RunAtLoad</key>
@@ -18,15 +18,15 @@
     <true/>
     
     <key>StandardOutPath</key>
-    <string>/Users/maxkelly/Library/Logs/granola-sync-menubar.log</string>
+    <string>__HOME__/Library/Logs/granola-sync-menubar.log</string>
     
     <key>StandardErrorPath</key>
-    <string>/Users/maxkelly/Library/Logs/granola-sync-menubar.log</string>
+    <string>__HOME__/Library/Logs/granola-sync-menubar.log</string>
     
     <key>EnvironmentVariables</key>
     <dict>
         <key>HOME</key>
-        <string>/Users/maxkelly</string>
+        <string>__HOME__</string>
         <key>PATH</key>
         <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
     </dict>
