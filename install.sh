@@ -9,8 +9,10 @@ echo "Installing Breakfast..."
 if [ ! -d "$SCRIPT_DIR/.venv" ]; then
     echo "Creating virtual environment..."
     python3 -m venv "$SCRIPT_DIR/.venv"
-    "$SCRIPT_DIR/.venv/bin/pip" install rumps pyobjc-framework-Cocoa
 fi
+
+echo "Installing dependencies..."
+"$SCRIPT_DIR/.venv/bin/pip" install -q rumps pyobjc-framework-Cocoa watchdog
 
 echo "Generating launchd plist..."
 sed -e "s|__INSTALL_DIR__|$SCRIPT_DIR|g" \

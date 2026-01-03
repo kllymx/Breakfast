@@ -4,7 +4,10 @@ A macOS menubar app that syncs your [Granola](https://granola.ai) meeting notes 
 
 ## Features
 
+- **Auto-sync** when meetings end (watches Granola cache for changes)
 - **One-click sync** from the menubar
+- **Recent Notes** submenu for quick access to last 5 synced notes
+- **Clickable notifications** - click to open the synced note
 - Exports **notes, transcripts, and metadata** (attendees, timestamps, meeting links)
 - Markdown files with YAML frontmatter for easy searching/indexing
 - Auto-start at login via launchd
@@ -34,6 +37,7 @@ Look for the icon in your menubar:
 |-----------|--------|
 | Sync Now | Sync all new meetings |
 | Sync Last 7 Days | Re-sync recent meetings (overwrites) |
+| Recent Notes | Quick access to last 5 synced notes |
 | Open Notes Folder | Opens the output directory |
 | View Log | Opens sync log in Console |
 
