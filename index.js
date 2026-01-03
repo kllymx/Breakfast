@@ -13,7 +13,9 @@ const path = require('path');
 const CONFIG = {
   outputDir: process.env.GRANOLA_OUTPUT_DIR || path.join(process.env.HOME, 'Documents/Granola Notes'),
   cacheFile: path.join(process.env.HOME, 'Library/Application Support/Granola/cache-v3.json'),
+  supabaseFile: path.join(process.env.HOME, 'Library/Application Support/Granola/supabase.json'),
   logFile: path.join(process.env.HOME, 'Library/Logs/granola-sync.log'),
+  transcriptApi: 'https://api.granola.ai/v1/get-document-transcript',
 };
 
 const args = process.argv.slice(2);
@@ -39,6 +41,61 @@ function log(message, level = 'info') {
   try {
     fs.appendFileSync(CONFIG.logFile, logMessage + '\n');
   } catch (e) {}
+}
+
+function getAuthToken() {
+  try {
+    const supabaseData = JSON.parse(fs.readFileSync(CONFIG.supabaseFile, 'utf-8'));
+    
+    if (supabaseData.workos_tokens) {
+      const tokens = typeof supabaseData.workos_tokens === 'string' 
+        ? JSON.parse(supabaseData.workos_tokens) 
+        : supabaseData.workos_tokens;
+      if (tokens?.access_token) return tokens.access_token;
+    }
+    
+    if (supabaseData.cognito_tokens) {
+      const tokens = typeof supabaseData.cognito_tokens === 'string'
+        ? JSON.parse(supabaseData.cognito_tokens)
+        : supabaseData.cognito_tokens;
+      if (tokens?.access_token) return tokens.access_token;
+    }
+    
+    return null;
+  } catch (err) {
+    log(`Failed to read auth token: ${err.message}`, 'error');
+    return null;
+  }
+}
+
+async function fetchTranscriptFromApi(documentId) {
+  const token = getAuthToken();
+  if (!token) {
+    log('No auth token available for transcript API', 'error');
+    return null;
+  }
+  
+  try {
+    const response = await fetch(CONFIG.transcriptApi, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ document_id: documentId })
+    });
+    
+    if (!response.ok) {
+      log(`Transcript API error: ${response.status}`, 'error');
+      return null;
+    }
+    
+    const data = await response.json();
+    return Array.isArray(data) ? data : null;
+  } catch (err) {
+    log(`Failed to fetch transcript: ${err.message}`, 'error');
+    return null;
+  }
 }
 
 function formatDateTime(dateStr) {
@@ -335,6 +392,13 @@ async function syncGranolaNotes() {
   let exportedCount = 0;
   let skippedCount = 0;
   
+  const hasAuthToken = !!getAuthToken();
+  if (hasAuthToken) {
+    log('Auth token found - will fetch transcripts from API');
+  } else {
+    log('No auth token - transcripts will use local cache only');
+  }
+  
   for (const meeting of meetings) {
     const meetingDate = new Date(meeting.created_at);
     const datePrefix = meetingDate.toISOString().split('T')[0];
@@ -349,7 +413,15 @@ async function syncGranolaNotes() {
     }
     
     const metadata = meetingsMetadata[meeting.id];
-    const transcriptEntries = transcripts[meeting.id] || [];
+    
+    let transcriptEntries = transcripts[meeting.id] || [];
+    if (hasAuthToken && transcriptEntries.length === 0) {
+      log(`Fetching transcript from API for: ${meeting.title}`);
+      const apiTranscript = await fetchTranscriptFromApi(meeting.id);
+      if (apiTranscript) {
+        transcriptEntries = apiTranscript;
+      }
+    }
     
     const markdown = generateMarkdown(meeting, metadata, transcriptEntries);
     
